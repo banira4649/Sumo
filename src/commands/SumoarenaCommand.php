@@ -14,7 +14,7 @@ class SumoarenaCommand extends Command{
         $this->main = $main;
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args){
+    public function execute(CommandSender $sender, string $label, array $args){
         if($sender instanceof Player){
             $sender->teleport($this->main->stage->getSafeSpawn());
             $sender->teleport($this->main->sumoPos0);
