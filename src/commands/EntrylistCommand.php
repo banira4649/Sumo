@@ -14,7 +14,7 @@ class EntrylistCommand extends Command{
         $this->main = $main;
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args){
+    public function execute(CommandSender $sender, string $label, array $args){
         if($this->main->game->getStatus() === 0){
             $sender->sendMessage("§c現在エントリーは行われていません");
             return true;
