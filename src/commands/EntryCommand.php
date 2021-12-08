@@ -14,7 +14,7 @@ class EntryCommand extends Command{
         $this->main = $main;
     }
 
-    public function execute(CommandSender $sender, string $commmandLabel, array $args){
+    public function execute(CommandSender $sender, string $label, array $args){
         if($sender instanceof Player){
             if($this->main->game->getStatus() === 2){
                 $sender->sendMessage("§cトーナメントが進行中です");
