@@ -14,7 +14,7 @@ class SumoCommand extends Command{
         $this->main = $main;
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args){
+    public function execute(CommandSender $sender, string $label, array $args){
         if($args !== []){
             switch($args[0]){
                 case "start":
