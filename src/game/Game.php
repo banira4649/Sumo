@@ -63,6 +63,18 @@ class Game{
         }
     }
 
+    public function isOnStage(?Player $player){
+        if($player === null){
+            return false;
+        }elseif(!$player->isOnline()){
+            return false;
+        }elseif($player->getWorld() === $this->main->stage){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public function getStatus(){
         return $this->status;
     }
@@ -230,10 +242,14 @@ class Game{
             $this->player1?->showPlayer($players);
             $this->player2?->showPlayer($players);
         }
-        $this->player1->setImmobile(false);
-        $this->player2->setImmobile(false);
-        $this->player1->teleport($this->main->sumoPos0);
-        $this->player2->teleport($this->main->sumoPos0);
+        $this->player1?->setImmobile(false);
+        $this->player2?->setImmobile(false);
+        if($this->isOnStage($this->player1)){
+            $this->player1?->teleport($this->main->sumoPos0);
+        }
+        if($this->isOnStage($this->player2)){
+            $this->player2?->teleport($this->main->sumoPos0);
+        }
         $this->player1 = null;
         $this->player2 = null;
         $this->main->getScheduler()->scheduleDelayedTask(new ClosureTask(
