@@ -68,10 +68,11 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
                     }else{
                         $entity->teleport($this->sumoPos0);
                     }
-                }else{
-                    if(!$this->game->isCombat($entity)){
-                        $event->cancel();
-                    }
+                }
+                if(!$this->game->isCombat($entity)){
+                    $event->cancel();
+                }elseif($event->getCause() !== \pocketmine\event\entity\EntityDamageEvent::CAUSE_ENTITY_ATTACK){
+                    $event->cancel();
                 }
             }
         }
