@@ -15,6 +15,7 @@ class EntryCommand extends Command{
     }
 
     public function execute(CommandSender $sender, string $label, array $args){
+        if(!$this->testPermission($sender)) return;
         if($sender instanceof Player){
             if($this->main->game->getStatus() === 2){
                 $sender->sendMessage("§cトーナメントが進行中です");

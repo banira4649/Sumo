@@ -15,6 +15,7 @@ class SumoCommand extends Command{
     }
 
     public function execute(CommandSender $sender, string $label, array $args){
+        if(!$this->testPermission($sender)) return;
         if($args !== []){
             switch($args[0]){
                 case "start":
