@@ -110,7 +110,7 @@ class Game{
     public function ready(){
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
 			if($this->isOnStage($players)){
-				$players->sendMessage("§l[§3SUMO§f] §eGame§f : ".$this->player1?->getName()." §cvs§f ".$this->player2?->getName());
+				$players->sendMessage("§l[§3SUMO§f] §eGame§f : ".$this->player1->getName()." §cvs§f ".$this->player2->getName());
 			}
 		}
         $this->setPlayer($this->player1);
