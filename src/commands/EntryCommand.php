@@ -30,6 +30,7 @@ class EntryCommand extends Command{
                 return true;
             }
             $sender->sendMessage("§l§f[§3SUMO§f] §eエントリー§fが完了しました！");
+            $this->main->getServer()->broadcastMessage("§l§f[§bエントリー§f] >> §e".$sender->getName());
             $this->main->game->addPlayer($sender);
             return true;
         }
