@@ -39,7 +39,7 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
 
     public function playerJoinEvent(\pocketmine\event\player\PlayerJoinEvent $event){
         $player = $event->getPlayer();
-        foreach($this->game->players as $players){
+        foreach($this->game->getPlayers() as $players){
             if($players->getName() === $player->getName()){
                 $this->game->removePlayer($players);
                 $this->game->addPlayer($player);
