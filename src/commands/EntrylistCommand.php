@@ -15,16 +15,11 @@ class EntrylistCommand extends Command{
     }
 
     public function execute(CommandSender $sender, string $label, array $args){
-        if(!$this->testPermission($sender)) return;
         if($this->main->game->getStatus() === 0){
             $sender->sendMessage("§c現在エントリーは行われていません");
             return true;
         }
-        $list = [];
-        foreach($this->main->game->getPlayers() as $players){
-            $list[] = $players->getName();
-        }
-        $sender->sendMessage("§aエントリー中のプレイヤー: "."\n"." "."§b".implode(", ", $list));
+        $sender->sendMessage("§aエントリー中のプレイヤー: "."\n"." "."§b".implode(", ", $this->main->game->getNameList()));
         return true;
     }
 
