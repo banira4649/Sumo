@@ -42,7 +42,7 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
 		if($this->game->isCombat($player)){
 			$this->game->win($this->game->getEnemy($player));
 		}elseif($this->game->isEntried($player)){
-            $this->game->removePlayer()
+            $this->game->removePlayer($player);
         }
     }
 
