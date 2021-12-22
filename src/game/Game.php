@@ -109,19 +109,12 @@ class Game{
 
     public function ready(){
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
-			if($players->getWorld() === $this->main->stage){
+			if($this->isOnStage($players)){
 				$players->sendMessage("§l[§3SUMO§f] §eGame§f : ".$this->player1?->getName()." §cvs§f ".$this->player2?->getName());
 			}
 		}
-		$this->player1?->setImmobile(true);
-		$this->player2?->setImmobile(true);
-		foreach($this->main->getServer()->getOnlinePlayers() as $players){
-			if(!$this->isCombat($players)){
-				$this->player1?->hidePlayer($players);
-				$this->player2?->hidePlayer($players);
-			}
-		}
-        $this->waiting = true;
+        $this->setPlayer($this->player1);
+        $this->setPlayer($this->player2);
         for($i = 1; $i <= 3; $i ++){
             $this->main->getScheduler()->scheduleDelayedTask(new ClosureTask(
     			function () use ($i): void{
@@ -234,6 +227,17 @@ class Game{
                 $this->next();
             }
         ), 20 * 3);
+    }
+
+    public function setPlayer(?Player $player){
+        if(($player->isOnline()) && ($player !== null)){
+    		foreach($this->main->getServer()->getOnlinePlayers() as $players){
+    			if(!$this->isCombat($players)){
+    				$player->hidePlayer($players);
+    			}
+    		}
+            $player->setImmobile(true);
+        }
     }
 
     public function resetPlayer(?Player $player){
