@@ -39,11 +39,11 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
 
     public function playerQuitEvent(\pocketmine\event\player\PlayerQuitEvent $event){
         $player = $event->getPlayer();
-        if($player->getWorld() === $this->stage){
-			if($this->game->isCombat($player)){
-				$this->game->win($this->game->getEnemy($player));
-			}
-		}
+		if($this->game->isCombat($player)){
+			$this->game->win($this->game->getEnemy($player));
+		}elseif($this->game->isEntried($player)){
+            $this->game->removePlayer()
+        }
     }
 
     public function playerExhaustEvent(\pocketmine\event\player\PlayerExhaustEvent $event){
