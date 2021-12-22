@@ -25,6 +25,14 @@ class Game{
         return $this->players;
     }
 
+    public function getNameList(){
+        $list = [];
+        foreach($this->players as $players){
+            $list[] = $players->getName();
+        }
+        return $list;
+    }
+
     public function addPlayer(Player $player){
         $this->players[] = $player;
     }
@@ -152,18 +160,8 @@ class Game{
 				if(isset($this->players[0])){
 					if(isset($this->players[1])){
 						$this->player1 = $this->players[0];
-						if($this->player1){
-							if($this->player1?->getWorld() === $this->main->stage){
-								$this->player1?->teleport($this->main->sumoPos1);
-							}else{
-								foreach($playerAll as $players){
-									if($players->getWorld() === $this->main->stage){
-										$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[0]->getName()."§dさんが不在のため、"."§b".$this->players[1]->getName()."§d"."さんは次のフェーズへ進みます");
-									}
-								}
-								$this->win($this->players[1]);
-								return;
-							}
+						if($this->isOnStage($this->player1)){
+							$this->player1->teleport($this->main->sumoPos1);
 						}else{
 							foreach($playerAll as $players){
 								if($players->getWorld() === $this->main->stage){
@@ -174,18 +172,8 @@ class Game{
 							return;
 						}
 						$this->player2 = $this->players[1];
-						if($this->player2){
-							if($this->player2?->getWorld() === $this->main->stage){
-								$this->player2?->teleport($this->main->sumoPos2);
-							}else{
-								foreach($playerAll as $players){
-									if($players->getWorld() === $this->main->stage){
-										$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[1]->getName()."§dさんが不在のため、"."§b".$this->players[0]->getName()."§d"."さんは次のフェーズへ進みます");
-									}
-								}
-								$this->win($this->players[0]);
-								return;
-							}
+						if($this->isOnStage($this->player2)){
+							$this->player2->teleport($this->main->sumoPos2);
 						}else{
 							foreach($playerAll as $players){
 								if($players->getWorld() === $this->main->stage){
@@ -204,7 +192,6 @@ class Game{
 							}
 						}
 						$this->win($this->players[0]);
-						$this->players = [];
 						return;
 					}
 				}elseif(isset($this->winners[0])){
@@ -238,18 +225,8 @@ class Game{
         $this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eWinner §f: §a".$player->getName());
         $this->winners[] = $player;
         array_splice($this->players, 0, 2);
-        foreach($this->main->getServer()->getOnlinePlayers() as $players){
-            $this->player1?->showPlayer($players);
-            $this->player2?->showPlayer($players);
-        }
-        $this->player1?->setImmobile(false);
-        $this->player2?->setImmobile(false);
-        if($this->isOnStage($this->player1)){
-            $this->player1?->teleport($this->main->sumoPos0);
-        }
-        if($this->isOnStage($this->player2)){
-            $this->player2?->teleport($this->main->sumoPos0);
-        }
+        $this->resetPlayer($this->player1);
+        $this->resetPlayer($this->player2);
         $this->player1 = null;
         $this->player2 = null;
         $this->main->getScheduler()->scheduleDelayedTask(new ClosureTask(
@@ -257,6 +234,18 @@ class Game{
                 $this->next();
             }
         ), 20 * 3);
+    }
+
+    public function resetPlayer(?Player $player){
+        if(($player->isOnline()) && ($player !== null)){
+            foreach($this->main->getServer()->getOnlinePlayers() as $players){
+                $player->showPlayer($players);
+            }
+            $player->setImmobile(false);
+            if($this->isOnStage($player)){
+                $player->teleport($this->main->sumoPos0);
+            }
+        }
     }
 
     public function break(){
