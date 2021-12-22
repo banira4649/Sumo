@@ -230,7 +230,7 @@ class Game{
     }
 
     public function setPlayer(?Player $player){
-        if(($player->isOnline()) && ($player !== null)){
+        if(($player !== null) && ($player->isOnline())){
     		foreach($this->main->getServer()->getOnlinePlayers() as $players){
     			if(!$this->isCombat($players)){
     				$player->hidePlayer($players);
@@ -241,7 +241,7 @@ class Game{
     }
 
     public function resetPlayer(?Player $player){
-        if(($player->isOnline()) && ($player !== null)){
+        if(($player !== null) && ($player->isOnline())){
             foreach($this->main->getServer()->getOnlinePlayers() as $players){
                 $player->showPlayer($players);
             }
