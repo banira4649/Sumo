@@ -97,4 +97,16 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
         }
     }
 
+    public static function resetPlayer(Player $player){
+        $player->getInventory()->clearAll();
+        $player->getArmorInventory()->clearAll();
+        $player->getEffects()->clear();
+        $player->getHungerManager()->setFood($player->getHungerManager()->getMaxFood());
+        $player->setHealth($player->getMaxHealth());
+        $player->getXpManager()->setXpLevel(0);
+        $player->getXpManager()->setXpProgress(0);
+        $player->setOnFire(0);
+        $player->setGameMode(GameMode::ADVENTURE());
+    }
+
 }
