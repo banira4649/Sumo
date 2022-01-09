@@ -6,7 +6,7 @@ namespace banira4649\Sumo;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
-use pocketmine\player\Player;
+use pocketmine\player\{Player, GameMode};
 use pocketmine\math\Vector3;
 use pocketmine\world\WorldManager;
 use banira4649\Sumo\commands\{SumoCommand, EntryCommand, EntrylistCommand, SumoarenaCommand};
