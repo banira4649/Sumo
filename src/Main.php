@@ -4,21 +4,31 @@ declare(strict_types=1);
 
 namespace banira4649\Sumo;
 
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityTeleportEvent;
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerExhaustEvent;
+use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\player\{Player, GameMode};
 use pocketmine\math\Vector3;
+use pocketmine\world\World;
 use pocketmine\world\WorldManager;
 use banira4649\Sumo\commands\{SumoCommand, EntryCommand, EntrylistCommand, SumoarenaCommand};
 use banira4649\Sumo\game\Game;
 
-class Main extends PluginBase implements \pocketmine\event\Listener{
+class Main extends PluginBase implements Listener{
+
+    public const WORLD_NAME = "sumo";
 
     public WorldManager $worldManager;
     public Vector3 $sumoPos0;
     public Vector3 $sumoPos1;
     public Vector3 $sumoPos2;
     public Game $game;
+    public ?World $stage;
 
     public function onEnable(): void{
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -29,15 +39,15 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
             new SumoarenaCommand("sumoarena", $this)
 		]);
         $this->worldManager = $this->getServer()->getWorldManager();
-        $this->worldManager->loadWorld("sumo");
-        $this->stage = $this->worldManager->getWorldByName("sumo");
+        $this->worldManager->loadWorld(self::WORLD_NAME);
+        $this->stage = $this->worldManager->getWorldByName(self::WORLD_NAME);
         $this->sumoPos0 = new Vector3(274.5, 31.5, 255.5);
         $this->sumoPos1 = new Vector3(255.5, 31.5, 259.5);
         $this->sumoPos2 = new Vector3(255.5, 31.5, 251.5);
         $this->game = new Game($this);
     }
 
-    public function playerJoinEvent(\pocketmine\event\player\PlayerJoinEvent $event){
+    public function playerJoinEvent(PlayerJoinEvent $event): void{
         $player = $event->getPlayer();
         foreach($this->game->getPlayers() as $players){
             if($players->getName() === $player->getName()){
@@ -47,20 +57,21 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
         }
     }
 
-    public function playerQuitEvent(\pocketmine\event\player\PlayerQuitEvent $event){
+    public function playerQuitEvent(PlayerQuitEvent $event): void{
         $player = $event->getPlayer();
 		if($this->game->isCombat($player)){
 			$this->game->win($this->game->getEnemy($player));
 		}
     }
 
-    public function playerExhaustEvent(\pocketmine\event\player\PlayerExhaustEvent $event){
+    public function playerExhaustEvent(PlayerExhaustEvent $event): void{
         if($event->getPlayer()->getWorld() === $this->stage){
             $event->cancel();
         }
     }
 
-    public function entityDamageEvent(\pocketmine\event\entity\EntityDamageEvent $event){
+    public function entityDamageEvent(EntityDamageEvent $event): void
+    {
         $entity = $event->getEntity();
         if($entity instanceof Player){
             if($entity->getWorld() === $this->stage){
@@ -69,7 +80,7 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
                         $entity->setHealth($entity->getMaxHealth());
         			}
         		), 1);
-                if($event->getCause() === \pocketmine\event\entity\EntityDamageEvent::CAUSE_VOID){
+                if($event->getCause() === EntityDamageEvent::CAUSE_VOID){
                     $event->cancel();
                     if($this->game->isCombat($entity)){
                         $this->game->win($this->game->getEnemy($entity));
@@ -79,14 +90,14 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
                 }
                 if(!$this->game->isCombat($entity)){
                     $event->cancel();
-                }elseif($event->getCause() !== \pocketmine\event\entity\EntityDamageEvent::CAUSE_ENTITY_ATTACK){
+                }elseif($event->getCause() !== EntityDamageEvent::CAUSE_ENTITY_ATTACK){
                     $event->cancel();
                 }
             }
         }
     }
 
-    public function entityTeleportEvent(\pocketmine\event\entity\EntityTeleportEvent $event){
+    public function entityTeleportEvent(EntityTeleportEvent $event): void{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             if($this->game->isCombat($entity)){
@@ -97,7 +108,7 @@ class Main extends PluginBase implements \pocketmine\event\Listener{
         }
     }
 
-    public static function resetPlayer(Player $player){
+    public static function resetPlayer(Player $player): void{
         $player->getInventory()->clearAll();
         $player->getArmorInventory()->clearAll();
         $player->getEffects()->clear();

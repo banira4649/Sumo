@@ -4,45 +4,52 @@ declare(strict_types=1);
 
 namespace banira4649\Sumo\game;
 
+use banira4649\Sumo\Main;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use banira4649\Sumo\function\Ex;
 
 class Game{
 
+    public const STAT_READY = 0;
+    public const STAT_ENTRY = 1;
+    public const STAT_PLAYING = 2;
+    public const STAT_BROKEN = 3;
+
     private array $players = [];
     private array $winners = [];
     private ?Player $player1 = null;
     private ?Player $player2 = null;
-    private int $phase = 1;
+    private int $phase = self::STAT_READY;
     private int $status = 0;
+    private Main $main;
 
-    public function __construct($main){
+    public function __construct(Main $main){
         $this->main = $main;
     }
 
-    public function getPlayers(){
+    public function getPlayers(): array{
         return $this->players;
     }
 
-    public function getNameList(){
+    public function getNameList(): array{
         $list = [];
         foreach($this->players as $players){
-            $list[] = $players->getName();
+            $list[] = $players->getDisplayName();
         }
         return $list;
     }
 
-    public function addPlayer(Player $player){
+    public function addPlayer(Player $player): void{
         $this->players[] = $player;
     }
 
-    public function removePlayer(Player $player){
+    public function removePlayer(Player $player): void{
         $this->players = array_diff($this->players, [$player]);
         $this->players = array_values($this->players);
     }
 
-    public function getEnemy(Player $player){
+    public function getEnemy(Player $player): ?Player{
         if($this->isCombat($player)){
             if($player === $this->player1){
                 return $this->player2;
@@ -50,12 +57,11 @@ class Game{
             if($player === $this->player2){
                 return $this->player1;
             }
-        }else{
-            return null;
         }
+        return null;
     }
 
-    public function isEntried(Player $player){
+    public function isEntried(Player $player): bool{
         if(in_array($player, $this->players)){
             return true;
         }else{
@@ -63,7 +69,7 @@ class Game{
         }
     }
 
-    public function isCombat(Player $player){
+    public function isCombat(Player $player): bool{
         if(($player === $this->player1) || ($player === $this->player2)){
             return true;
         }else{
@@ -71,7 +77,7 @@ class Game{
         }
     }
 
-    public function isOnStage(?Player $player){
+    public function isOnStage(?Player $player): bool{
         if($player === null){
             return false;
         }elseif(!$player->isOnline()){
@@ -83,20 +89,20 @@ class Game{
         }
     }
 
-    public function getStatus(){
+    public function getStatus(): int{
         return $this->status;
     }
 
-    public function setStatus(int $value){
+    public function setStatus(int $value): void{
         $this->status = $value;
     }
 
-    public function open(){
-        $this->status = 1;
+    public function open(): void{
+        $this->status = self::STAT_ENTRY;
     }
 
-    public function start(){
-        $this->status = 2;
+    public function start(): void{
+        $this->status = self::STAT_PLAYING;
         shuffle($this->players);
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
             if($players->getWorld() === $this->main->stage){
@@ -107,10 +113,10 @@ class Game{
         $this->next();
     }
 
-    public function ready(){
+    public function ready(): void{
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
 			if($this->isOnStage($players)){
-				$players->sendMessage("§l[§3SUMO§f] §eGame§f : ".$this->player1->getName()." §cvs§f ".$this->player2->getName());
+				$players->sendMessage("§l[§3SUMO§f] §eGame§f : ".$this->player1->getDisplayName()." §cvs§f ".$this->player2->getDisplayName());
 			}
 		}
         $this->setPlayer($this->player1);
@@ -122,8 +128,8 @@ class Game{
                         $s = 4 - $i;
         				foreach($this->main->getServer()->getOnlinePlayers() as $players){
         					if($players->getWorld() === $this->main->stage){
-        						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: {$s}");
-        						Ex::sendSound($this->main, $players, "random.anvil_land", 1, 2);
+        						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: $s");
+        						Ex::sendSound($players, "random.anvil_land", 1, 2);
         					}
         				}
                     }
@@ -133,12 +139,12 @@ class Game{
 		$this->main->getScheduler()->scheduleDelayedTask(new ClosureTask(
 			function (): void{
                 if(($this->player1 !== null) && ($this->player2 !== null)){
-    				$this->player1?->setImmobile(false);
-    				$this->player2?->setImmobile(false);
+    				$this->player1->setNoClientPredictions(false);
+    				$this->player2->setNoClientPredictions(false);
     				foreach($this->main->getServer()->getOnlinePlayers() as $players){
     					if($players->getWorld() === $this->main->stage){
     						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: Go!");
-    						Ex::sendSound($this->main, $players, "random.explode", 1, 1);
+    						Ex::sendSound($players, "random.explode", 1, 1);
     					}
     				}
                 }
@@ -146,7 +152,7 @@ class Game{
 		), 20 * 4);
     }
 
-    public function next(){
+    public function next(): void{
         $this->main->getScheduler()->scheduleDelayedTask(new ClosureTask(
 			function (): void{
 				$playerAll = $this->main->getServer()->getOnlinePlayers();
@@ -158,7 +164,7 @@ class Game{
 						}else{
 							foreach($playerAll as $players){
 								if($players->getWorld() === $this->main->stage){
-									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[0]->getName()."§dさんが不在のため、"."§b".$this->players[1]->getName()."§d"."さんは次のフェーズへ進みます");
+									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[0]->getDisplayName()."§dさんが不在のため、"."§b".$this->players[1]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
 								}
 							}
 							$this->win($this->players[1]);
@@ -170,24 +176,22 @@ class Game{
 						}else{
 							foreach($playerAll as $players){
 								if($players->getWorld() === $this->main->stage){
-									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[1]->getName()."§dさんが不在のため、"."§b".$this->players[0]->getName()."§d"."さんは次のフェーズへ進みます");
+									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[1]->getDisplayName()."§dさんが不在のため、"."§b".$this->players[0]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
 								}
 							}
 							$this->win($this->players[0]);
 							return;
 						}
 						$this->ready();
-						return;
-					}else{
+                    }else{
 						foreach($playerAll as $players){
 							if($players->getWorld() === $this->main->stage){
-								$players->sendMessage("§l§f[§3SUMO§f] §d人数が奇数であるため、"."§b".$this->players[0]->getName()."§d"."さんは次のフェーズへ進みます");
+								$players->sendMessage("§l§f[§3SUMO§f] §d人数が奇数であるため、"."§b".$this->players[0]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
 							}
 						}
 						$this->win($this->players[0]);
-						return;
-					}
-				}elseif(isset($this->winners[0])){
+                    }
+                }elseif(isset($this->winners[0])){
 					if(isset($this->winners[1])){
 						$this->players = $this->winners;
 						$this->winners = [];
@@ -199,23 +203,21 @@ class Game{
 							}
 						}
 						$this->next();
-						return;
-					}else{
-						$this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eTournament Winner §f: §a".$this->winners[0]->getName());
+                    }else{
+						$this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eTournament Winner §f: §a".$this->winners[0]->getDisplayName());
 						foreach($this->main->getServer()->getOnlinePlayers() as $players){
-							Ex::sendSound($this->main, $players, "random.explode", 1, 1);
-							Ex::sendSound($this->main, $players, "random.totem", 1, 1);
+							Ex::sendSound($players, "random.explode", 1, 1);
+							Ex::sendSound($players, "random.totem", 1, 1);
 						}
                         $this->break();
-						return;
-					}
-				}
+                    }
+                }
 			}
-		), 20 * 1);
+		), 20);
     }
 
-    public function win(Player $player){
-        $this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eWinner §f: §a".$player->getName());
+    public function win(Player $player): void{
+        $this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eWinner §f: §a".$player->getDisplayName());
         $this->winners[] = $player;
         array_splice($this->players, 0, 2);
         $this->resetPlayer($this->player1);
@@ -229,32 +231,32 @@ class Game{
         ), 20 * 3);
     }
 
-    public function setPlayer(?Player $player){
+    public function setPlayer(?Player $player): void{
         if(($player !== null) && ($player->isOnline())){
     		foreach($this->main->getServer()->getOnlinePlayers() as $players){
     			if(!$this->isCombat($players)){
     				$player->hidePlayer($players);
     			}
     		}
-            $player->setImmobile(true);
+            $player->setNoClientPredictions();
         }
     }
 
-    public function resetPlayer(?Player $player){
+    public function resetPlayer(?Player $player): void{
         if(($player !== null) && ($player->isOnline())){
             foreach($this->main->getServer()->getOnlinePlayers() as $players){
                 $player->showPlayer($players);
             }
-            $player->setImmobile(false);
+            $player->setNoClientPredictions(false);
             if($this->isOnStage($player)){
                 $player->teleport($this->main->sumoPos0);
             }
         }
     }
 
-    public function break(){
+    public function break(): void{
         $this->main->game = new Game($this->main);
-        $this->status = 3;
+        $this->status = self::STAT_BROKEN;
     }
 
 }

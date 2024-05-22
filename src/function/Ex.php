@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace banira4649\Sumo\function;
 
+use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\player\Player;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 
 class Ex{
 
-    public static function sendSound($main, Player $player, string $soundName, float $volume, float $pitch, bool $all = false){
+    public static function sendSound(Player $player, string $soundName, float $volume, float $pitch, bool $all = false): void{
         $packet = new PlaySoundPacket();
         $packet->x = $player->getPosition()->getX();
         $packet->y = $player->getPosition()->getY();
@@ -18,9 +19,9 @@ class Ex{
         $packet->volume = $volume;
         $packet->pitch = $pitch;
 		if($all){
-	        $main->getServer()->broadcastPackets($player->getLevel()->getPlayers(), [$packet]);
+	        NetworkBroadcastUtils::broadcastPackets($player->getWorld()->getPlayers(), [$packet]);
 		}else{
-			$main->getServer()->broadcastPackets([$player], [$packet]);
+            NetworkBroadcastUtils::broadcastPackets([$player], [$packet]);
 		}
     }
 
