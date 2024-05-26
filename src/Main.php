@@ -10,7 +10,6 @@ use pocketmine\player\{Player, GameMode};
 use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\world\World;
 use pocketmine\world\WorldManager;
 use banira4649\Sumo\command\{SumoCommand, EntryCommand, EntrylistCommand, SumoarenaCommand};
 use banira4649\Sumo\game\Game;
@@ -24,7 +23,6 @@ class Main extends PluginBase{
     public Vector3 $sumoPos1;
     public Vector3 $sumoPos2;
     public Game $game;
-    public ?World $stage;
 
     public function onEnable(): void{
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
@@ -34,9 +32,10 @@ class Main extends PluginBase{
             new EntrylistCommand("entrylist", $this),
             new SumoarenaCommand("sumoarena", $this),
         ]);
+        $this->game = new Game($this);
         $this->worldManager = $this->getServer()->getWorldManager();
         $this->worldManager->loadWorld(self::WORLD_NAME);
-        $this->stage = $this->worldManager->getWorldByName(self::WORLD_NAME);
+        $this->game->setStage($this->worldManager->getWorldByName(self::WORLD_NAME));
         $stageData = new Config(
             Path::join(Server::getInstance()->getDataPath(), "worlds", self::WORLD_NAME, 'config.json'),
             Config::JSON,
@@ -57,7 +56,7 @@ class Main extends PluginBase{
             $stageData->get("pos2")[1],
             $stageData->get("pos2")[2]
         );
-        $this->game = new Game($this);
+
     }
 
     public static function resetPlayer(Player $player): void{

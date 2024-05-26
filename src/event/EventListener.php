@@ -40,7 +40,7 @@ class EventListener implements Listener{
     }
 
     public function playerExhaustEvent(PlayerExhaustEvent $event): void{
-        if($event->getPlayer()->getWorld() === $this->main->stage){
+        if($event->getPlayer()->getWorld() === $this->main->game->getStage()){
             $event->cancel();
         }
     }
@@ -48,7 +48,7 @@ class EventListener implements Listener{
     public function entityDamageEvent(EntityDamageEvent $event): void{
         $entity = $event->getEntity();
         if($entity instanceof Player){
-            if($entity->getWorld() === $this->main->stage){
+            if($entity->getWorld() === $this->main->game->getStage()){
                 $this->main->getScheduler()->scheduleDelayedTask(
                     new ClosureTask(function() use ($entity): void{
                         $entity->setHealth($entity->getMaxHealth());

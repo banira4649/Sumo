@@ -19,17 +19,13 @@ class SumoarenaCommand extends Command{
         $this->main = $main;
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args): bool
-    {
+    public function execute(CommandSender $sender, string $commandLabel, array $args): bool{
         if(!$this->testPermission($sender)) return false;
         if(!$sender instanceof Player) return false;
         if($this->main->game->isCombat($sender)){
 			$this->main->game->win($this->main->game->getEnemy($sender));
 		}
-        Main::resetPlayer($sender);
-        $sender->teleport($this->main->stage->getSafeSpawn());
-        $sender->teleport($this->main->sumoPos0);
-        $sender->sendMessage("§aSUMOアリーナに入場しました");
+        $this->main->game->joinArena($sender);
         return true;
     }
 

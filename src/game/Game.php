@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace banira4649\Sumo\game;
 
+use banira4649\Sumo\event\player\PlayerJoinArenaEvent;
 use banira4649\Sumo\Main;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use banira4649\Sumo\function\Ex;
+use pocketmine\world\World;
 
 class Game{
 
@@ -22,6 +24,7 @@ class Game{
     private ?Player $player2 = null;
     private int $phase = self::STAT_READY;
     private int $status = 0;
+    private ?World $stage;
     private Main $main;
 
     public function __construct(Main $main){
@@ -82,7 +85,7 @@ class Game{
             return false;
         }elseif(!$player->isOnline()){
             return false;
-        }elseif($player->getWorld() === $this->main->stage){
+        }elseif($player->getWorld() === $this->stage){
             return true;
         }else{
             return false;
@@ -97,6 +100,14 @@ class Game{
         $this->status = $value;
     }
 
+    public function getStage(): ?World{
+        return $this->stage;
+    }
+
+    public function setStage(?World $stage): void{
+        $this->stage = $stage;
+    }
+
     public function open(): void{
         $this->status = self::STAT_ENTRY;
     }
@@ -105,7 +116,7 @@ class Game{
         $this->status = self::STAT_PLAYING;
         shuffle($this->players);
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
-            if($players->getWorld() === $this->main->stage){
+            if($players->getWorld() === $this->stage){
                 $players->teleport($this->main->sumoPos0);
                 $players->sendMessage("§l§f[§3SUMO§f] §ePHASE §f: ".$this->phase);
             }
@@ -127,7 +138,7 @@ class Game{
                     if(($this->player1 !== null) && ($this->player2 !== null)){
                         $s = 4 - $i;
         				foreach($this->main->getServer()->getOnlinePlayers() as $players){
-        					if($players->getWorld() === $this->main->stage){
+        					if($players->getWorld() === $this->stage){
         						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: $s");
         						Ex::sendSound($players, "random.anvil_land", 1, 2);
         					}
@@ -142,7 +153,7 @@ class Game{
     				$this->player1->setNoClientPredictions(false);
     				$this->player2->setNoClientPredictions(false);
     				foreach($this->main->getServer()->getOnlinePlayers() as $players){
-    					if($players->getWorld() === $this->main->stage){
+    					if($players->getWorld() === $this->stage){
     						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: Go!");
     						Ex::sendSound($players, "random.explode", 1, 1);
     					}
@@ -163,7 +174,7 @@ class Game{
 							$this->player1->teleport($this->main->sumoPos1);
 						}else{
 							foreach($playerAll as $players){
-								if($players->getWorld() === $this->main->stage){
+								if($players->getWorld() === $this->stage){
 									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[0]->getDisplayName()."§dさんが不在のため、"."§b".$this->players[1]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
 								}
 							}
@@ -175,7 +186,7 @@ class Game{
 							$this->player2->teleport($this->main->sumoPos2);
 						}else{
 							foreach($playerAll as $players){
-								if($players->getWorld() === $this->main->stage){
+								if($players->getWorld() === $this->stage){
 									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[1]->getDisplayName()."§dさんが不在のため、"."§b".$this->players[0]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
 								}
 							}
@@ -185,7 +196,7 @@ class Game{
 						$this->ready();
                     }else{
 						foreach($playerAll as $players){
-							if($players->getWorld() === $this->main->stage){
+							if($players->getWorld() === $this->stage){
 								$players->sendMessage("§l§f[§3SUMO§f] §d人数が奇数であるため、"."§b".$this->players[0]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
 							}
 						}
@@ -198,7 +209,7 @@ class Game{
 						shuffle($this->players);
 						$this->phase++;
 						foreach($playerAll as $players){
-							if($players->getWorld() === $this->main->stage){
+							if($players->getWorld() === $this->stage){
 								$players->sendMessage("§l§f[§3SUMO§f] §ePHASE §f: ".$this->phase);
 							}
 						}
@@ -259,4 +270,16 @@ class Game{
         $this->status = self::STAT_BROKEN;
     }
 
+    public function joinArena(Player $player): void{
+        $ev = new PlayerJoinArenaEvent($player);
+        $ev->call();
+        if(!$ev->isCancelled()){
+            Main::resetPlayer($player);
+            $player->teleport($this->stage->getSafeSpawn());
+            $player->teleport($this->main->sumoPos0);
+            $player->sendMessage("§aSUMOアリーナに入場しました");
+        }else{
+            $player->sendMessage("§cSUMOアリーナへの入場に失敗しました");
+        }
+    }
 }
