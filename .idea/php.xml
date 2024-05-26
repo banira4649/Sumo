@@ -15,6 +15,7 @@
   </component>
   <component name="PhpIncludePathManager">
     <include_path>
+      <path value="$PROJECT_DIR$/../../../../../!lib/php" />
       <path value="$PROJECT_DIR$/../../../../../!!pmmp/pm5/source" />
     </include_path>
   </component>
