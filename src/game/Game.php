@@ -24,7 +24,7 @@ class Game{
     private ?Player $player2 = null;
     private int $phase = self::STAT_READY;
     private int $status = 0;
-    private ?World $stage;
+    private ?World $stage = null;
     private Main $main;
 
     public function __construct(Main $main){
