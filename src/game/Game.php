@@ -9,7 +9,9 @@ use banira4649\Sumo\Main;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use banira4649\Sumo\function\Ex;
+use pocketmine\Server;
 use pocketmine\world\World;
+use pocketmine\world\WorldManager;
 
 class Game{
 
@@ -17,6 +19,8 @@ class Game{
     public const STAT_ENTRY = 1;
     public const STAT_PLAYING = 2;
     public const STAT_BROKEN = 3;
+
+
 
     private array $players = [];
     private array $winners = [];
@@ -27,8 +31,13 @@ class Game{
     private ?World $stage = null;
     private Main $main;
 
+    private WorldManager $worldManager;
+
     public function __construct(Main $main){
         $this->main = $main;
+        $this->worldManager = Server::getInstance()->getWorldManager();
+        $this->worldManager->loadWorld(Main::WORLD_NAME);
+        $this->setStage($this->worldManager->getWorldByName(Main::WORLD_NAME));
     }
 
     public function getPlayers(): array{

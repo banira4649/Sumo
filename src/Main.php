@@ -10,15 +10,14 @@ use pocketmine\player\{Player, GameMode};
 use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\world\WorldManager;
 use banira4649\Sumo\command\{SumoCommand, EntryCommand, EntrylistCommand, SumoarenaCommand};
 use banira4649\Sumo\game\Game;
 use Symfony\Component\Filesystem\Path;
 
 class Main extends PluginBase{
+
     public const WORLD_NAME = "sumo";
 
-    public WorldManager $worldManager;
     public Vector3 $sumoPos0;
     public Vector3 $sumoPos1;
     public Vector3 $sumoPos2;
@@ -33,9 +32,6 @@ class Main extends PluginBase{
             new SumoarenaCommand("sumoarena", $this),
         ]);
         $this->game = new Game($this);
-        $this->worldManager = $this->getServer()->getWorldManager();
-        $this->worldManager->loadWorld(self::WORLD_NAME);
-        $this->game->setStage($this->worldManager->getWorldByName(self::WORLD_NAME));
         $stageData = new Config(
             Path::join(Server::getInstance()->getDataPath(), "worlds", self::WORLD_NAME, 'config.json'),
             Config::JSON,
