@@ -8,7 +8,7 @@ use banira4649\Sumo\event\player\PlayerJoinArenaEvent;
 use banira4649\Sumo\Main;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
-use banira4649\Sumo\function\Ex;
+use banira4649\Sumo\utils\Utils;
 use pocketmine\Server;
 use pocketmine\world\World;
 use pocketmine\world\WorldManager;
@@ -127,7 +127,7 @@ class Game{
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
             if($players->getWorld() === $this->stage){
                 $players->teleport($this->main->sumoPos0);
-                $players->sendMessage("§l§f[§3SUMO§f] §ePHASE §f: ".$this->phase);
+                $players->sendMessage(Utils::PREFIX_SUMO."§cPHASE §f: ".$this->phase);
             }
         }
         $this->next();
@@ -136,7 +136,7 @@ class Game{
     public function ready(): void{
         foreach($this->main->getServer()->getOnlinePlayers() as $players){
 			if($this->isOnStage($players)){
-				$players->sendMessage("§l[§3SUMO§f] §eGame§f : ".$this->player1->getDisplayName()." §cvs§f ".$this->player2->getDisplayName());
+				$players->sendMessage("§l[§3SUMO§f] §cGame§f : ".$this->player1->getDisplayName()." §cvs§f ".$this->player2->getDisplayName());
 			}
 		}
         $this->setPlayer($this->player1);
@@ -148,8 +148,8 @@ class Game{
                         $s = 4 - $i;
         				foreach($this->main->getServer()->getOnlinePlayers() as $players){
         					if($players->getWorld() === $this->stage){
-        						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: $s");
-        						Ex::sendSound($players, "random.anvil_land", 1, 2);
+        						$players->sendMessage(Utils::PREFIX_SUMO."§b開始まで §f: $s");
+        						Utils::sendSound($players, "random.anvil_land", 1, 2);
         					}
         				}
                     }
@@ -163,8 +163,8 @@ class Game{
     				$this->player2->setNoClientPredictions(false);
     				foreach($this->main->getServer()->getOnlinePlayers() as $players){
     					if($players->getWorld() === $this->stage){
-    						$players->sendMessage("§l§f[§3SUMO§f] §e開始まで §f: Go!");
-    						Ex::sendSound($players, "random.explode", 1, 1);
+    						$players->sendMessage(Utils::PREFIX_SUMO."§b開始まで §f: Go!");
+    						Utils::sendSound($players, "random.explode", 1, 1);
     					}
     				}
                 }
@@ -184,7 +184,7 @@ class Game{
 						}else{
 							foreach($playerAll as $players){
 								if($players->getWorld() === $this->stage){
-									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[0]->getDisplayName()."§dさんが不在のため、"."§b".$this->players[1]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
+									$players->sendMessage(Utils::PREFIX_SUMO."§a".$this->players[0]->getDisplayName()."§bさんが不在のため、"."§a".$this->players[1]->getDisplayName()."§b"."さんは次のフェーズへ進みます");
 								}
 							}
 							$this->win($this->players[1]);
@@ -196,7 +196,7 @@ class Game{
 						}else{
 							foreach($playerAll as $players){
 								if($players->getWorld() === $this->stage){
-									$players->sendMessage("§l§f[§3SUMO§f] "."§b".$this->players[1]->getDisplayName()."§dさんが不在のため、"."§b".$this->players[0]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
+									$players->sendMessage(Utils::PREFIX_SUMO."§a".$this->players[1]->getDisplayName()."§bさんが不在のため、"."§a".$this->players[0]->getDisplayName()."§b"."さんは次のフェーズへ進みます");
 								}
 							}
 							$this->win($this->players[0]);
@@ -206,7 +206,7 @@ class Game{
                     }else{
 						foreach($playerAll as $players){
 							if($players->getWorld() === $this->stage){
-								$players->sendMessage("§l§f[§3SUMO§f] §d人数が奇数であるため、"."§b".$this->players[0]->getDisplayName()."§d"."さんは次のフェーズへ進みます");
+								$players->sendMessage(Utils::PREFIX_SUMO."§b人数が奇数であるため、"."§s".$this->players[0]->getDisplayName()."§b"."さんは次のフェーズへ進みます");
 							}
 						}
 						$this->win($this->players[0]);
@@ -219,15 +219,15 @@ class Game{
 						$this->phase++;
 						foreach($playerAll as $players){
 							if($players->getWorld() === $this->stage){
-								$players->sendMessage("§l§f[§3SUMO§f] §ePHASE §f: ".$this->phase);
+								$players->sendMessage(Utils::PREFIX_SUMO."§cPHASE §f: ".$this->phase);
 							}
 						}
 						$this->next();
                     }else{
-						$this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eTournament Winner §f: §a".$this->winners[0]->getDisplayName());
+						$this->main->getServer()->broadcastMessage(Utils::PREFIX_SUMO."§cTOURNAMENT WINNER §f: §a".$this->winners[0]->getDisplayName());
 						foreach($this->main->getServer()->getOnlinePlayers() as $players){
-							Ex::sendSound($players, "random.explode", 1, 1);
-							Ex::sendSound($players, "random.totem", 1, 1);
+							Utils::sendSound($players, "random.explode", 1, 1);
+							Utils::sendSound($players, "random.totem", 1, 1);
 						}
                         $this->break();
                     }
@@ -237,7 +237,7 @@ class Game{
     }
 
     public function win(Player $player): void{
-        $this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §eWinner §f: §a".$player->getDisplayName());
+        $this->main->getServer()->broadcastMessage(Utils::PREFIX_SUMO."§cWINNER §f: §a".$player->getDisplayName());
         $this->winners[] = $player;
         array_splice($this->players, 0, 2);
         $this->resetPlayer($this->player1);

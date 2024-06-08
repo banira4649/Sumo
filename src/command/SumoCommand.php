@@ -6,6 +6,7 @@ namespace banira4649\Sumo\command;
 
 use banira4649\Sumo\game\Game;
 use banira4649\Sumo\Main;
+use banira4649\Sumo\utils\Utils;
 use pocketmine\command\{Command, CommandSender};
 use pocketmine\permission\DefaultPermissions;
 
@@ -45,7 +46,7 @@ class SumoCommand extends Command{
                         return true;
                     }
                     $this->main->game->setStatus(Game::STAT_ENTRY);
-                    $this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §a相撲イベントのエントリーが開始されました\n§l§f>> §e/entry§fで参加できます");
+                    $this->main->getServer()->broadcastMessage(Utils::PREFIX_SUMO."§b相撲イベントのエントリーが開始されました\n§l§f>> §b/entry§fで参加できます");
                     return true;
                 case "ready":
                     if($this->main->game->getStatus() !== Game::STAT_ENTRY){
@@ -53,7 +54,7 @@ class SumoCommand extends Command{
                         return true;
                     }
                     $this->main->game->setStatus(Game::STAT_READY);
-                    $this->main->getServer()->broadcastMessage("§l§f[§3SUMO§f] §a相撲イベントのエントリーが締め切られました");
+                    $this->main->getServer()->broadcastMessage(Utils::PREFIX_SUMO."§b相撲イベントのエントリーが締め切られました");
                     return true;
             }
         }

@@ -24,7 +24,7 @@ class EntrylistCommand extends Command{
             $sender->sendMessage("§c参加者が存在しません");
             return true;
         }
-        $sender->sendMessage("§aエントリー中のプレイヤー: "."\n"." "."§b".implode(", ", $this->main->game->getNameList()));
+        $sender->sendMessage("§bエントリー中のプレイヤー: "."\n"." "."§a".implode(", ", $this->main->game->getNameList()));
         return true;
     }
 

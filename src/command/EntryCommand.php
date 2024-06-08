@@ -6,6 +6,7 @@ namespace banira4649\Sumo\command;
 
 use banira4649\Sumo\game\Game;
 use banira4649\Sumo\Main;
+use banira4649\Sumo\utils\Utils;
 use pocketmine\command\{Command, CommandSender};
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
@@ -32,9 +33,9 @@ class EntryCommand extends Command{
                 $sender->sendMessage("§cあなたはすでにエントリー済みです");
                 return true;
             }
-            $sender->sendMessage("§l§f[§3SUMO§f] §eエントリー§fが完了しました！");
+            $sender->sendMessage(Utils::PREFIX_SUMO."§bエントリー§fが完了しました！");
             if(!$this->main->game->isOnStage($sender)) $sender->sendMessage("§a/sumoarenaを実行して移動してください");
-            $this->main->getServer()->broadcastMessage("§l§f[§bエントリー§f] >> §e".$sender->getDisplayName());
+            $this->main->getServer()->broadcastMessage("§l§f[§bエントリー§f] >> §a".$sender->getDisplayName());
             $this->main->game->addPlayer($sender);
             return true;
         }
