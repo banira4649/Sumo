@@ -1,6 +1,6 @@
 ---
 name: Sumo
-version: 1.2.0
+version: 1.2.1
 main: banira4649\Sumo\Main
 api: 5.0.0
 src-namespace-prefix: banira4649\Sumo
