@@ -37,27 +37,15 @@ class Main extends PluginBase{
             Config::JSON,
             ["spawn" => [0, 0, 0], "pos1" => [0, 0, 0], "pos2" => [0, 0, 0]]
         );
-        $this->sumoPos0 = new Vector3(
-            $stageData->get("spawn")[0],
-            $stageData->get("spawn")[1],
-            $stageData->get("spawn")[2]
-        );
-        $this->sumoPos1 = new Vector3(
-            $stageData->get("pos1")[0],
-            $stageData->get("pos1")[1],
-            $stageData->get("pos1")[2]
-        );
-        $this->sumoPos2 = new Vector3(
-            $stageData->get("pos2")[0],
-            $stageData->get("pos2")[1],
-            $stageData->get("pos2")[2]
-        );
-
+        $this->sumoPos0 = new Vector3(...$stageData->get("spawn"));
+        $this->sumoPos1 = new Vector3(...$stageData->get("pos1"));
+        $this->sumoPos2 = new Vector3(...$stageData->get("pos2"));
     }
 
     public static function resetPlayer(Player $player): void{
         $player->getInventory()->clearAll();
         $player->getArmorInventory()->clearAll();
+        $player->getCursorInventory()->clearAll();
         $player->getEffects()->clear();
         $player->getHungerManager()->setFood($player->getHungerManager()->getMaxFood());
         $player->setHealth($player->getMaxHealth());
